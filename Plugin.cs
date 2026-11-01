@@ -76,12 +76,15 @@ namespace GravLevel
                 Vector3 curUp = rot * Vector3.up;
                 Quaternion target = Quaternion.FromToRotation(curUp, up) * rot; // minimal tilt
                 bool faced = false;
+                string frontSrc = "-";
+                Vector3 localFront = Vector3.zero;
                 if (face && cam != null)
                 {
                     // Same world-space points vanilla uses for the grab: camera ray origin and the entity's center of mass.
                     Vector3 toPlayer = Vector3.ProjectOnPlane(cam.Ray().origin - tf.LocalToWorld(e.Rigidbody.ownCenterOfMass), up);
-                    Quaternion front = Plugin.UseShipFront.Value ? e.Systems.GetVehicleOrientation() : Quaternion.identity;
-                    Vector3 fwd = Vector3.ProjectOnPlane(target * (front * FaceVector(Plugin.FaceDirection.Value)), up);
+                    Quaternion front = ShipFront(e, out frontSrc);
+                    localFront = front * FaceVector(Plugin.FaceDirection.Value);
+                    Vector3 fwd = Vector3.ProjectOnPlane(target * localFront, up);
                     if (toPlayer.sqrMagnitude > 0.01f && fwd.sqrMagnitude > 1e-6f)
                     {
                         target = Quaternion.AngleAxis(Vector3.SignedAngle(fwd, toPlayer, up), up) * target;
@@ -120,7 +123,7 @@ namespace GravLevel
                 if (Plugin.Verbose.Value && Time.time >= nextLog)
                 {
                     nextLog = Time.time + 1f;
-                    Plugin.Log.LogInfo($"[GravLevel] {e.name} mass={data.mass:F1} src={(planet ? "planet" : "camera")} face={faced} up={up} err={angDeg:F1}deg w={w.magnitude:F2} torque={math.length(torque):F1}");
+                    Plugin.Log.LogInfo($"[GravLevel] {e.name} mass={data.mass:F1} src={(planet ? "planet" : "camera")} face={faced} front={frontSrc} localFront={localFront} up={up} err={angDeg:F1}deg w={w.magnitude:F2} torque={math.length(torque):F1}");
                 }
             }
             catch (Exception ex)
@@ -131,6 +134,25 @@ namespace GravLevel
 
         static bool Held(KeyboardShortcut k) =>
             k.MainKey != KeyCode.None && Input.GetKey(k.MainKey) && k.Modifiers.IsNullOrEmptyOr(m => Input.GetKey(m));
+
+        // The game's forward thrust axis is inputOrientation * forward, where inputOrientation is the yoke brick's rotation
+        // (ComputerSpaceship.ComputeThrust / SetForwardDirection). Read it from the computer, else from the saved ship orientation.
+        static Quaternion ShipFront(ParentEntity e, out string src)
+        {
+            src = "grid";
+            if (!Plugin.UseShipFront.Value) return Quaternion.identity;
+            Quaternion q = e.Systems != null ? e.Systems.GetVehicleOrientation() : Quaternion.identity;
+            if (ValidNonIdentity(q)) { src = "ship"; return q; }
+            q = Quaternion.Inverse(e.EntityMetaData.ShipOrientationInv);
+            if (ValidNonIdentity(q)) { src = "ship(saved)"; return q; }
+            return Quaternion.identity;
+        }
+
+        static bool ValidNonIdentity(Quaternion q)
+        {
+            float n = q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
+            return n > 0.5f && Mathf.Abs(q.w) < 0.9999f;
+        }
 
         static Vector3 FaceVector(FaceDir d)
         {
