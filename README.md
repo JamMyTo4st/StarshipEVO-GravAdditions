@@ -1,4 +1,6 @@
-# GravLevel for Starship EVO
+# GravAdditions for Starship EVO
+
+*(formerly GravLevel)*
 
 A small BepInEx 5 plugin that auto-levels whatever you're holding with the **anti-grav tool** (grav gun) in **Starship EVO**.
 
@@ -37,15 +39,23 @@ Hold **N** instead and the object levels AND turns so its front points toward yo
 
 1. In Steam, right-click **Starship EVO** > **Manage** > **Browse local files**. This opens the game folder (the one with `Starship EVO.exe`).
 2. If you don't have BepInEx yet, extract the BepInEx 5 x64 zip into that folder. `BepInEx\`, `winhttp.dll` and `doorstop_config.ini` must end up next to `Starship EVO.exe`. Start the game once, wait for the main menu, then quit.
-3. Download `GravLevel-v1.1.0.zip` from this repo's [Releases](../../releases) page and extract it into the game folder. You should then have `BepInEx\plugins\GravLevel\GravLevel.dll`.
+3. Download `GravAdditions-v1.1.0.zip` from this repo's [Releases](../../releases) page and extract it into the game folder. You should then have `BepInEx\plugins\GravAdditions\GravAdditions.dll`.
 4. Start the game.
 
-To check it loaded, open `BepInEx\LogOutput.log` and look for `GravLevel 1.1.0 loaded`.
+To check it loaded, open `BepInEx\LogOutput.log` and look for `GravAdditions 1.1.0 loaded`.
+
+## Upgrading from GravLevel
+
+1. Delete the old `BepInEx\plugins\GravLevel` folder. If both are installed, GravAdditions stays off and writes a warning to the log until you do.
+2. Install GravAdditions as above.
+3. Your old settings (`com.jammytoast.starshipevo.gravlevel.cfg`) are copied to the new config file automatically on first launch.
+
+When this version is released, the GitHub repo will be renamed to `StarshipEVO-GravAdditions`. Old links redirect automatically.
 
 ## Configuration
 
 The config file is created after the first launch with the mod:
-`BepInEx\config\com.jammytoast.starshipevo.gravlevel.cfg`
+`BepInEx\config\com.jammytoast.starshipevo.gravadditions.cfg`
 
 ```ini
 [Controls]
@@ -83,7 +93,7 @@ Restart the game after you change the file.
 
 ## Uninstall
 
-**To remove only GravLevel:** delete the `BepInEx\plugins\GravLevel` folder. You can also delete `BepInEx\config\com.jammytoast.starshipevo.gravlevel.cfg`.
+**To remove only GravAdditions:** delete the `BepInEx\plugins\GravAdditions` folder. You can also delete `BepInEx\config\com.jammytoast.starshipevo.gravadditions.cfg`.
 
 **To remove BepInEx completely:** in the game folder, delete
 - the `BepInEx` folder
@@ -112,7 +122,7 @@ The game's DLLs are **not** in this repo. You need your own copy of the game.
    ```
    dotnet build -c Release -p:GameDir="D:\SteamLibrary\steamapps\common\Starship EVO"
    ```
-3. The output is `bin\Release\netstandard2.0\GravLevel.dll`. Copy it to `BepInEx\plugins\GravLevel\`.
+3. The output is `bin\Release\netstandard2.0\GravAdditions.dll`. Copy it to `BepInEx\plugins\GravAdditions\`.
 
 ## Reporting issues
 

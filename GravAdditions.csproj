@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GravLevel</AssemblyName>
-    <Product>Starship EVO GravLevel</Product>
+    <AssemblyName>GravAdditions</AssemblyName>
+    <Product>Starship EVO GravAdditions</Product>
     <Version>1.1.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
-    <BepInExPluginGuid>com.jammytoast.starshipevo.gravlevel</BepInExPluginGuid>
-    <BepInExPluginName>GravLevel</BepInExPluginName>
+    <BepInExPluginGuid>com.jammytoast.starshipevo.gravadditions</BepInExPluginGuid>
+    <BepInExPluginName>GravAdditions</BepInExPluginName>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Starship EVO</GameDir>
     <ManagedDir>$(GameDir)\Starship EVO_Data\Managed</ManagedDir>

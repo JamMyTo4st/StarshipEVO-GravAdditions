@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -9,13 +11,14 @@ using Manager;
 using VoxelEngine;
 using World.Terrain.Planet;
 
-namespace GravLevel
+namespace GravAdditions
 {
     public enum FaceDir { Forward, Backward, Left, Right }
 
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        internal const string OldGuid = "com.jammytoast.starshipevo.gravlevel";
         internal static ManualLogSource Log;
         internal static ConfigEntry<KeyboardShortcut> LevelKey, FaceKey;
         internal static ConfigEntry<bool> AlwaysLevel, YawSnap, UseShipFront, Verbose;
@@ -25,6 +28,7 @@ namespace GravLevel
         private void Awake()
         {
             Log = Logger;
+            MigrateOldConfig();
             LevelKey = Config.Bind("Controls", "LevelKey", new KeyboardShortcut(KeyCode.B),
                 "Hold while dragging with the anti-grav tool to level the held object. Default B (vanilla R = Rotate Right, used by the grav tool for distance; V = Scanner; middle mouse = Action Wheel/Free Look).");
             FaceKey = Config.Bind("Controls", "FaceKey", new KeyboardShortcut(KeyCode.N),
@@ -38,8 +42,28 @@ namespace GravLevel
             Damping = Config.Bind("Leveling", "Damping", 10f, "Angular velocity damping gain (1/s). ~2*sqrt(Strength) is critically damped.");
             MaxAngularAccel = Config.Bind("Leveling", "MaxAngularAccel", 20f, "Clamp on commanded angular acceleration (rad/s^2) before inertia scaling.");
             Verbose = Config.Bind("Debug", "VerboseLogging", false, "Log debug info once per second while leveling.");
+            if (Chainloader.PluginInfos.ContainsKey(OldGuid) || Directory.Exists(Path.Combine(Paths.PluginPath, "GravLevel")))
+            {
+                Log.LogWarning("Old GravLevel plugin found. GravAdditions replaces it: delete the BepInEx\\plugins\\GravLevel folder. GravAdditions is disabled until then.");
+                return;
+            }
             new Harmony(MyPluginInfo.PLUGIN_GUID).PatchAll(typeof(Plugin).Assembly);
-            Log.LogInfo($"GravLevel {MyPluginInfo.PLUGIN_VERSION} loaded. Key={LevelKey.Value} FaceKey={FaceKey.Value} FaceDir={FaceDirection.Value} ShipFront={UseShipFront.Value} Always={AlwaysLevel.Value} YawSnap={YawSnap.Value} Kp={Strength.Value} Kd={Damping.Value}");
+            Log.LogInfo($"GravAdditions {MyPluginInfo.PLUGIN_VERSION} loaded. Key={LevelKey.Value} FaceKey={FaceKey.Value} FaceDir={FaceDirection.Value} ShipFront={UseShipFront.Value} Always={AlwaysLevel.Value} YawSnap={YawSnap.Value} Kp={Strength.Value} Kd={Damping.Value}");
+        }
+
+        private void MigrateOldConfig()
+        {
+            try
+            {
+                string oldCfg = Path.Combine(Paths.ConfigPath, OldGuid + ".cfg");
+                if (!File.Exists(Config.ConfigFilePath) && File.Exists(oldCfg))
+                {
+                    File.Copy(oldCfg, Config.ConfigFilePath);
+                    Config.Reload();
+                    Log.LogInfo($"Migrated settings from {OldGuid}.cfg");
+                }
+            }
+            catch (Exception ex) { Log.LogWarning($"Config migration failed: {ex.Message}"); }
         }
     }
 
@@ -123,7 +147,7 @@ namespace GravLevel
                 if (Plugin.Verbose.Value && Time.time >= nextLog)
                 {
                     nextLog = Time.time + 1f;
-                    Plugin.Log.LogInfo($"[GravLevel] {e.name} mass={data.mass:F1} src={(planet ? "planet" : "camera")} face={faced} front={frontSrc} localFront={localFront} up={up} err={angDeg:F1}deg w={w.magnitude:F2} torque={math.length(torque):F1}");
+                    Plugin.Log.LogInfo($"[GravAdditions] {e.name} mass={data.mass:F1} src={(planet ? "planet" : "camera")} face={faced} front={frontSrc} localFront={localFront} up={up} err={angDeg:F1}deg w={w.magnitude:F2} torque={math.length(torque):F1}");
                 }
             }
             catch (Exception ex)
