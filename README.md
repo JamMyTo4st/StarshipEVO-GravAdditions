@@ -4,9 +4,8 @@
 
 A small BepInEx 5 plugin that auto-levels whatever you're holding with the **anti-grav tool** (grav gun) in **Starship EVO**.
 
-> ✅ **Tested in-game and working (v1.0.0, game version 26w43a, November 2026). Game updates may break it, so back up your saves first.**
+> ✅ **Tested in-game and working (v1.1.0, game version 26w43a, November 2026). Game updates may break it, so back up your saves first.**
 >
-> ⚠️ **v1.1.0 (the face-player key) is NOT yet tested in-game.**
 
 ## What it does
 
