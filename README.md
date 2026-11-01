@@ -3,10 +3,14 @@
 A small BepInEx 5 plugin that auto-levels whatever you're holding with the **anti-grav tool** (grav gun) in **Starship EVO**.
 
 > ✅ **Tested in-game and working (v1.0.0, game version 26w43a, November 2026). Game updates may break it, so back up your saves first.**
+>
+> ⚠️ **v1.1.0 (the face-player key) is NOT yet tested in-game.**
 
 ## What it does
 
 Grab an object with the anti-grav tool, hold **B**, and the object turns upright to match the planet's gravity. Its heading also snaps to the nearest 90°. This makes it easy to set down crates, hoverbikes and small ships straight.
+
+Hold **N** instead and the object levels AND turns so its front points toward you. For crafts with a yoke, the front is the pilot's forward. If the front is a different side of your build, change `FaceDirection`.
 
 - **Up direction:** the opposite of planet gravity at the object's position. In deep space, with no planet gravity, it levels to your camera's up instead.
 - **Physics-safe:** it only adds turning force (torque) through the game's own rigidbody API. It never sets rotation directly or teleports anything.
@@ -20,6 +24,7 @@ Grab an object with the anti-grav tool, hold **B**, and the object turns upright
 |---|---|
 | Hold left mouse (anti-grav tool) | Grab an object (vanilla) |
 | Hold **B** while grabbing | Level the object |
+| Hold **N** while grabbing | Level the object and turn its front toward you |
 | R / Shift+R | Change grab distance (vanilla) |
 
 ## Requirements
@@ -32,10 +37,10 @@ Grab an object with the anti-grav tool, hold **B**, and the object turns upright
 
 1. In Steam, right-click **Starship EVO** > **Manage** > **Browse local files**. This opens the game folder (the one with `Starship EVO.exe`).
 2. If you don't have BepInEx yet, extract the BepInEx 5 x64 zip into that folder. `BepInEx\`, `winhttp.dll` and `doorstop_config.ini` must end up next to `Starship EVO.exe`. Start the game once, wait for the main menu, then quit.
-3. Download `GravLevel-v1.0.0.zip` from this repo's [Releases](../../releases) page and extract it into the game folder. You should then have `BepInEx\plugins\GravLevel\GravLevel.dll`.
+3. Download `GravLevel-v1.1.0.zip` from this repo's [Releases](../../releases) page and extract it into the game folder. You should then have `BepInEx\plugins\GravLevel\GravLevel.dll`.
 4. Start the game.
 
-To check it loaded, open `BepInEx\LogOutput.log` and look for `GravLevel 1.0.0 loaded`.
+To check it loaded, open `BepInEx\LogOutput.log` and look for `GravLevel 1.1.0 loaded`.
 
 ## Configuration
 
@@ -45,11 +50,14 @@ The config file is created after the first launch with the mod:
 ```ini
 [Controls]
 LevelKey = B
+FaceKey = N
 AlwaysLevelWhileHolding = false
 
 [Leveling]
 YawSnap = true
 YawSnapDegrees = 90
+FaceDirection = Forward
+UseShipFront = true
 Strength = 25
 Damping = 10
 MaxAngularAccel = 20
@@ -61,8 +69,11 @@ VerboseLogging = false
 | Key | What it does |
 |---|---|
 | `LevelKey` | The key to hold while grabbing. |
+| `FaceKey` | The key to hold to level the object and turn its front toward you. Yaw snap is skipped while it is held. |
 | `AlwaysLevelWhileHolding` | Level everything you grab, without holding a key. |
 | `YawSnap` / `YawSnapDegrees` | Snap the heading to the nearest step (it turns at most half a step). |
+| `FaceDirection` | Which side is the front for `FaceKey`: `Forward`, `Backward`, `Left` or `Right`. |
+| `UseShipFront` | For crafts with a yoke, use the pilot's forward as the front. Turn off to use the build grid's forward. |
 | `Strength` | How hard it pulls toward level. Raise it if leveling is too slow. |
 | `Damping` | How quickly it settles. Raise it if it wobbles or overshoots. |
 | `MaxAngularAccel` | The cap on turning speed (rad/s²). |
